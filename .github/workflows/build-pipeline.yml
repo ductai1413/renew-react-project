@@ -16,7 +16,7 @@
 # For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
-name: Web app CI/CD
+name: Web app CI
 on:
   push:
     branches: [ "master" ]
@@ -55,7 +55,7 @@ jobs:
     - name: Zip build output
       run: |
         VERSION=${{ github.event.inputs.version }}
-        zip -r "react-build-$VERSION.zip" build
+        zip -r "react-build-$VERSION.zip" -i build
           
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
