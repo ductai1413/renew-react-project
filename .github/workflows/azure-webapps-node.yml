@@ -16,11 +16,16 @@
 # For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
-
+name: Web app CI/CD
 on:
   push:
     branches: [ "master" ]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version build (VD: 1.0.0)"
+        required: true
+        default: "1.0.0"
 
 env:
   AZURE_WEBAPP_NAME: bookstore    # set this to your application's name
@@ -47,31 +52,13 @@ jobs:
         npm run build --if-present
         npm run test --if-present
 
+    - name: Zip build output
+      run: |
+        VERSION=${{ github.event.inputs.version }}
+        zip -r "react-build-$VERSION.zip" build
+          
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
       with:
-        name: node-app
-        path: .
-
-  deploy:
-    permissions:
-      contents: none
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-    - name: Download artifact from build job
-      uses: actions/download-artifact@v4
-      with:
-        name: node-app
-
-    - name: 'Deploy to Azure WebApp'
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        name: react-build-${{ github.event.inputs.version }}
+        path: react-build-${{ github.event.inputs.version }}.zip
