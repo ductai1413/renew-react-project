@@ -77,11 +77,22 @@ jobs:
     runs-on: ubuntu-latest
     name: Create GitHub Release
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0   # cần để tạo tag
+          
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: react-build-${{ needs.build-job.outputs.version }}
           path: ./release
+
+      - name: Create tag
+        run: |
+          VERSION="${{ needs.build-job.outputs.version }}"
+          git tag "$VERSION"
+          git push origin "$VERSION"
       
       - name: Create Release
         uses: softprops/action-gh-release@v2
