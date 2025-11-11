@@ -6,21 +6,30 @@ import { useNavigate } from 'react-router-dom';
 
 const ExternalLogin: React.FC = () => {
   const navigate = useNavigate();
-  const dipatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   const handleLogin = useGoogleLogin({
     onSuccess: async response => {
-      const token = response.access_token;
+      try {
+        const token = response.access_token;
 
-      // Gọi Google API để lấy thông tin user
-      // Lấy thông tin người dùng
-      const userInfo = await authService.getGoogleUser(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-      );
-      dipatch(setCredentials({ token, user: userInfo }));
+        if (!token) {
+          console.error('Không lấy được access_token từ Google');
+          return;
+        }
+        // Gọi Google API để lấy thông tin user
+        // Lấy thông tin người dùng
+        const userInfo = await authService.getGoogleUser(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          token,
+        );
+        dispatch(setCredentials({ token, user: userInfo }));
 
-      console.log('Đăng nhập thành công:', userInfo);
-      navigate('/dashboard');
+        console.log('Đăng nhập thành công:', userInfo);
+        navigate('/dashboard');
+      } catch (error) {
+        console.error('Đăng nhập thất bại:', error);
+      }
     },
     onError: () => console.log('Đăng nhập thất bại'),
     flow: 'implicit',

@@ -4,7 +4,12 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { config } from '@/configs/config';
 
 export const authService = {
-  getGoogleUser: async (url: string) => await axiosClient.get<UserProfile>(url),
+  getGoogleUser: async (url: string, token: string) =>
+    await axiosClient.get<UserProfile>(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
 };
 
 export const usersApi = createApi({
