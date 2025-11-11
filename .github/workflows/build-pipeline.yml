@@ -21,12 +21,6 @@ on:
   push:
     branches: [ "master" ]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version build (VD: 1.0.0)"
-        default: "1.0.0"
-        required: true
-        type: string
 
 env:
   AZURE_WEBAPP_NAME: bookstore    # set this to your application's name
@@ -39,6 +33,10 @@ permissions:
 jobs:
   build-job:
     runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+      
     steps:
     - uses: actions/checkout@v4
       with:
@@ -56,45 +54,47 @@ jobs:
         npm run build --if-present
         npm run test --if-present
 
+    - name: Set version
+      id: set-version
+      run: |
+        VERSION="$(date +'%Y.%m.%d')-v{GITHUB_RUN_NUMBER}"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
     - name: Zip build output
       run: |
-        VERSION=${{ github.event.inputs.version }}
+        VERSION=${{ steps.set-version.outputs.VERSION }}
         zip -r "react-build-$VERSION.zip" dist
           
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v4
       with:
-        name: react-build-${{ github.event.inputs.version }}
-        path: react-build-${{ github.event.inputs.version }}.zip
+        name: react-build-${{ steps.set-version.outputs.VERSION }}
+        path: react-build-${{ steps.set-version.outputs.VERSION }}.zip
         retention-days: 3
 
   create_release:
     needs: build-job
     runs-on: ubuntu-latest
     name: Create GitHub Release
-    steps:      
-      - name: Get version from tag
-        id: tag_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
+    steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: react-build-${{ needs.build.outputs.version }}
+          name: react-build-${{ needs.build-job.outputs.version }}
           path: ./release
       
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag_version.outputs.VERSION }}
-          name: Release ${{ steps.tag_version.outputs.VERSION }}
+          tag_name: ${{ steps.build-job.outputs.version }}
+          name: Release ${{ steps.build-job.outputs.version }}
           body: |
-            Release ${{ steps.tag_version.outputs.VERSION }}
+            Release ${{ steps.build-job.outputs.version }}
             
             ## Changes
             - See commit history for details
           draft: false
           prerelease: false
-          files: ./release/react-build-${{ needs.build.outputs.version }}.zip
+          files: ./release/react-build-${{ steps.build-job.outputs.version }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
