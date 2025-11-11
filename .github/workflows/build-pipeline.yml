@@ -78,9 +78,9 @@ jobs:
     name: Create GitHub Release
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # cần để tạo tag
+          fetch-depth: 0
           
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -97,15 +97,15 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.build-job.outputs.version }}
-          name: Release ${{ steps.build-job.outputs.version }}
+          tag_name: ${{ needs.build-job.outputs.version }}
+          name: Release ${{ needs.build-job.outputs.version }}
           body: |
-            Release ${{ steps.build-job.outputs.version }}
+            Release ${{ needs.build-job.outputs.version }}
             
             ## Changes
             - See commit history for details
           draft: false
           prerelease: false
-          files: ./release/react-build-${{ steps.build-job.outputs.version }}.zip
+          files: ./release/react-build-${{ needs.build-job.outputs.version }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
