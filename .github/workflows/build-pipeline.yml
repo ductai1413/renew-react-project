@@ -57,7 +57,7 @@ jobs:
     - name: Set version
       id: set-version
       run: |
-        VERSION="$(date +'%Y.%m.%d')-v{GITHUB_RUN_NUMBER}"
+        VERSION="$(date +'%Y.%m.%d')-v${GITHUB_RUN_NUMBER}"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Zip build output
