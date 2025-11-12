@@ -20,7 +20,8 @@ name: React CI - Build
 on:
   push:
     branches: [ "master" ]
-  workflow_dispatch:
+    tags:
+        - 'v*'
 
 env:
   AZURE_WEBAPP_NAME: bookstore    # set this to your application's name
@@ -39,6 +40,12 @@ jobs:
       version: ${{ steps.set-version.outputs.version }}
       
     steps:
+    - name: Show runner info
+      run: |
+        echo "Runner name: $RUNNER_NAME"
+        echo "Runner OS: $RUNNER_OS"
+        echo "Runner ARCH: $RUNNER_ARCH"
+
     - uses: actions/checkout@v4
       with:
         submodules: true
@@ -58,7 +65,7 @@ jobs:
     - name: Set version
       id: set-version
       run: |
-        VERSION="$(date +'%Y.%m.%d')-v${GITHUB_RUN_NUMBER}"
+        VERSION="$(date +'%Y.%m.%d-%H.%M.%S')-v${GITHUB_RUN_NUMBER}"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Zip build output
@@ -94,6 +101,7 @@ jobs:
           VERSION="${{ needs.build-job.outputs.version }}"
           git tag "$VERSION"
           git push origin "$VERSION"
+          echo ${{ github.ref_name }}
       
       - name: Create Release
         uses: softprops/action-gh-release@v2

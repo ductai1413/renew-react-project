@@ -1,9 +1,6 @@
 name: Deploy to Azure Static Web App
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version cần deploy (VD: 1.0.0)"
 
 jobs:
   deploy_job:
