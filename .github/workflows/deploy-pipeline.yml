@@ -20,6 +20,11 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner ARCH: $RUNNER_ARCH"
 
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
       - name: Download release asset
         run: |
           gh release download react-build-${{ github.event.inputs.version }} --pattern "*.zip" --dir ./buildzip
