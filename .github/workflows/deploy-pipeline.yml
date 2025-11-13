@@ -22,7 +22,7 @@ jobs:
 
       - name: Download release asset
         run: |
-          gh release download react-build-${{ github.event.inputs.version }} --pattern "*.zip" --dir ./buildzip
+          gh release download ${{ github.event.inputs.version }} --pattern "*.zip" --dir ./buildzip
           unzip ./buildzip/*.zip -d build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,6 +54,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_SEA_0CD970B1E }}
           action: "close"
+
 
 
 
