@@ -20,8 +20,6 @@ name: React CI - Build
 on:
   push:
     branches: [ "master" ]
-    tags:
-        - 'v*'
 
 env:
   AZURE_WEBAPP_NAME: bookstore    # set this to your application's name
@@ -78,7 +76,7 @@ jobs:
       with:
         name: react-build-${{ steps.set-version.outputs.VERSION }}
         path: react-build-${{ steps.set-version.outputs.VERSION }}.zip
-        retention-days: 3
+        retention-days: 2
 
   create_release:
     needs: build-job
@@ -101,7 +99,6 @@ jobs:
           VERSION="${{ needs.build-job.outputs.version }}"
           git tag "$VERSION"
           git push origin "$VERSION"
-          echo ${{ github.ref_name }}
       
       - name: Create Release
         uses: softprops/action-gh-release@v2

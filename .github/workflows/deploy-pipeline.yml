@@ -1,6 +1,10 @@
 name: Deploy to Azure Static Web App
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version cần deploy (VD: 1.0.0)"
+        required: true
 
 jobs:
   deploy_job:
@@ -10,15 +14,20 @@ jobs:
     if: |
       (github.event_name == 'workflow_dispatch')
     steps:
+      - name: Show runner info
+        run: |
+          echo "Runner name: $RUNNER_NAME"
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner ARCH: $RUNNER_ARCH"
+
       - name: Download artifact by version
         uses: actions/download-artifact@v4
         with:
-          name: dist-${{ steps.version.outputs.VERSION }}
-          path: dist
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: react-build-${{ github.event.inputs.version }}
+          path: ./artifact
 
       - name: Extract artifact
-        run: unzip ./artifact/react-build-${{ github.event.inputs.version }}.zip -d ./build
+        run: unzip ./artifact/react-build-${{ github.event.inputs.version }}.zip -d ./dist
       
       - name: Build And Deploy
         id: builddeploy
@@ -34,7 +43,7 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
-          DEPLOYMENT_ENVIRONMENT: ${{ steps.version.outputs.VERSION }}
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.version }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
