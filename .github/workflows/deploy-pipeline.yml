@@ -20,14 +20,12 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner ARCH: $RUNNER_ARCH"
 
-      - name: Download artifact by version
-        uses: actions/download-artifact@v4
-        with:
-          name: react-build-${{ github.event.inputs.version }}
-          path: ./artifact
-
-      - name: Extract artifact
-        run: unzip ./artifact/react-build-${{ github.event.inputs.version }}.zip -d ./dist
+      - name: Download release asset
+        run: |
+          gh release download react-build-${{ github.event.inputs.version }} --pattern "*.zip" --dir ./buildzip
+          unzip ./buildzip/*.zip -d build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Build And Deploy
         id: builddeploy
@@ -38,7 +36,7 @@ jobs:
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
+          app_location: "./build" # App source code path
           api_location: "api" # Api source code path - optional
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
