@@ -32,11 +32,12 @@ jobs:
         run: |
           FILE_NAME="react-build-${{github.event.inputs.version}}"
 
-          if [ -f "./${FILE_NAME}.zip" ]; then
+          if [ -f "./${FILE_NAME}.zip" ]; then 
+            echo "File: $FILE_NAME.zip existed."
             rm ${FILE_NAME}.zip
           fi
           
-          wget -O app.zip "${{ github.event.release.assets[0].browser_download_url }}"
+          wget -O ${FILE_NAME}.zip "${{ github.event.release.assets[0].browser_download_url }}"
           unzip -q ${FILE_NAME}.zip -d ./dist
       - name: Build And Deploy
         id: builddeploy
