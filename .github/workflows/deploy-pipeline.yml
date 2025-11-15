@@ -36,8 +36,11 @@ jobs:
             echo "File: $FILE_NAME.zip existed."
             rm ${FILE_NAME}.zip
           fi
-          
-          wget -O ${FILE_NAME}.zip "${{ github.event.release.assets[0].browser_download_url }}"
+
+          echo "Downloading from release...: $FILE_NAME.zip"
+          echo "${{github.event.release.assets[0].browser_download_url}}"
+
+          wget -O ${FILE_NAME}.zip "https://github.com/ductai1413/renew-react-project/releases/download/${{github.event.inputs.version}}/$FILE_NAME.zip"
           unzip -q ${FILE_NAME}.zip -d ./dist
       - name: Build And Deploy
         id: builddeploy
