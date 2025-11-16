@@ -8,6 +8,9 @@ on:
         description: "Version cần deploy (VD: 1.0.0)"
         required: true
 
+env:
+  AZURE_WEBAPP_NAME: bookstore-web-app
+  RESOURCE_GROUP: bookstore-web-app
 jobs:
   deploy_job:
     # runs-on: ubuntu-latest
@@ -22,8 +25,17 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner ARCH: $RUNNER_ARCH"
 
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
+      - name: Clean workspace
+        run: |
+          rm -rf $RUNNER_WORKSPACE/*
+          rm -rf /actions-runner/_work/*
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Download release asset
         run: |
@@ -35,8 +47,6 @@ jobs:
           fi
 
           echo "Downloading from release...: $FILE_NAME.zip"
-          echo "Current workspace:"
-          pwd
 
           wget -O ${FILE_NAME}.zip "https://github.com/ductai1413/renew-react-project/releases/download/${{github.event.inputs.version}}/$FILE_NAME.zip"
           unzip -q ${FILE_NAME}.zip -d ./
@@ -44,30 +54,39 @@ jobs:
       - run: |
           echo "Current workspace:"
           pwd
-          echo "List files:"
-          ls -R .
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_SEA_0CD970B1E }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          # api_location: "api" # Api source code path - optional
-          output_location: "dist" # Built app content directory - optional
-          skip_app_build: true
-          # skip_api_build: true
-          ###### End of Repository/Build Configurations ######
-        env:
-          DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.version }}
+      # - name: Build And Deploy
+      #   id: builddeploy
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_SEA_0CD970B1E }}
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+      #     action: "upload"
+      #     ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+      #     # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+      #     app_location: "/" # App source code path
+      #     # api_location: "api" # Api source code path - optional
+      #     output_location: "dist" # Built app content directory - optional
+      #     skip_app_build: true
+      #     # skip_api_build: true
+      #     ###### End of Repository/Build Configurations ######
+      #   env:
+      #     DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.version }}
 
-      - name: Clean workspace
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy using Azure CLI
         run: |
-          rm -rf $RUNNER_WORKSPACE/*
-          rm -rf /actions-runner/_work/*
+          echo "Current workspace:"
+          pwd
+
+          az staticwebapp upload \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --source ./dist \
+            --verbose
 
   close_pull_request_job:
     # if: github.event_name == 'pull_request' && github.event.action == 'closed'
