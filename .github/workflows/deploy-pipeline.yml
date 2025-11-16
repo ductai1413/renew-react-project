@@ -89,7 +89,7 @@ jobs:
           rm -rf /actions-runner/_work/*
 
   close_pull_request_job:
-    # if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
     # runs-on: ubuntu-latest
     runs-on: self-hosted
     name: Close Pull Request Job
