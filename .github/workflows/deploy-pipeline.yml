@@ -44,7 +44,7 @@ jobs:
           pwd
 
           wget -O ${FILE_NAME}.zip "https://github.com/ductai1413/renew-react-project/releases/download/${{github.event.inputs.version}}/$FILE_NAME.zip"
-          unzip -q ${FILE_NAME}.zip -d dist
+          unzip -q ${FILE_NAME}.zip -d ./
 
       - run: |
           echo "Current workspace:"
@@ -63,7 +63,7 @@ jobs:
           app_location: "/" # App source code path
           # api_location: "api" # Api source code path - optional
           output_location: "dist" # Built app content directory - optional
-          # skip_app_build: true
+          skip_app_build: true
           skip_api_build: true
           ###### End of Repository/Build Configurations ######
         env:
