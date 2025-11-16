@@ -25,11 +25,6 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner ARCH: $RUNNER_ARCH"
 
-      - name: Clean workspace
-        run: |
-          rm -rf $RUNNER_WORKSPACE/*
-          rm -rf /actions-runner/_work/*
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -87,6 +82,11 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --source ./dist \
             --verbose
+
+      - name: Clean workspace
+        run: |
+          rm -rf $RUNNER_WORKSPACE/*
+          rm -rf /actions-runner/_work/*
 
   close_pull_request_job:
     # if: github.event_name == 'pull_request' && github.event.action == 'closed'
