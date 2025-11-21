@@ -61,7 +61,7 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           skip_app_build: true
           skip_api_build: true
-          # app_artifact_location: "/"
+          app_artifact_location: "dist"
           app_build_command: ""
           api_build_command: ""
           ###### End of Repository/Build Configurations ######
