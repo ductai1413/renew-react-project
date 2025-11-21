@@ -25,7 +25,7 @@ jobs:
           echo "Runner OS: $RUNNER_OS"
           echo "Runner ARCH: $RUNNER_ARCH"
       
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
@@ -47,25 +47,16 @@ jobs:
       - name: Install SWA CLI
         run: npm install -g @azure/static-web-apps-cli
 
-      # - name: Download Build Artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: react-build-${{ github.event.inputs.version }}
-      #     path: ./buildzip
-
-      # - name: Unzip artifact
-      #   run: |
-      #     mkdir build
-      #     unzip ./buildzip/*.zip -d build
-
       - name: Deploy with SWA CLI
         env:
           SWA_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_RIVER_0B8D75000 }}
+          AZURE_RESOURCE_GROUP: "bookstore"
         run: |
           swa deploy ./dist \
             --env production \
-            --app-name "my-azure-swa" \
-            --api-token "$SWA_TOKEN"
+            --app-name "bookstore" \
+            --resource-group $AZURE_RESOURCE_GROUP
+            --deployment-token "$SWA_TOKEN"
 
       # - name: Build And Deploy
       #   id: builddeploy
