@@ -46,10 +46,7 @@ jobs:
           echo "Current workspace:"
           pwd
 
-      - name: Setup custom workspace
-        run: |
-          cp -r dist /github/workspace
-          
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
