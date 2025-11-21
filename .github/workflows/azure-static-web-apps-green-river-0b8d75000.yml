@@ -23,8 +23,8 @@ jobs:
     steps:
       - name: Setup custom workspace
         run: |
-          mkdir -p /github/workspace
-          cp -r . /github/workspace
+          mkdir -p $(pwd)/github/workspace
+          cp -r . $(pwd)/github/workspace
 
       - name: Show runner info
         run: |
